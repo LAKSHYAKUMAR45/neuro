@@ -9,7 +9,6 @@ from convolutional_neural_network import ConvolutionalNeuralNetwork
 
 
 class GEGameModel(BaseGameModel):
-
     model = None
 
     def __init__(self, game_name, mode_name, input_shape, action_space, logger_path, model_path):
@@ -48,7 +47,6 @@ class GESolver(GEGameModel):
 
 
 class GETrainer(GEGameModel):
-
     run = 0
     generation = 0
     selection_rate = 0.1
@@ -63,7 +61,7 @@ class GETrainer(GEGameModel):
                              "GE training",
                              input_shape,
                              action_space,
-                             "./output/logs/" + game_name + "/ge/training/"+ self._get_date() + "/",
+                             "./output/logs/" + game_name + "/ge/training/" + self._get_date() + "/",
                              "./output/neural_nets/" + game_name + "/ge/" + self._get_date() + "/model.h5")
         if os.path.exists(os.path.dirname(self.model_path)):
             shutil.rmtree(os.path.dirname(self.model_path), ignore_errors=True)
@@ -73,12 +71,12 @@ class GETrainer(GEGameModel):
         pass
 
     def genetic_evolution(self, env):
-        print "population_size: " + str(self.population_size) +\
-              ", mutation_rate: " + str(self.mutation_rate) +\
-              ", selection_rate: " + str(self.selection_rate) +\
-              ", random_weight_range: " + str(self.random_weight_range)
+        print("population_size: " + str(self.population_size) + \
+              ", mutation_rate: " + str(self.mutation_rate) + \
+              ", selection_rate: " + str(self.selection_rate) + \
+              ", random_weight_range: " + str(self.random_weight_range))
         population = None
-
+        diversity_threshold = 0.8
         while True:
             print('{{"metric": "generation", "value": {}}}'.format(self.generation))
 
@@ -87,25 +85,87 @@ class GETrainer(GEGameModel):
 
             self._save_model(parents)  # Saving main model based on the current best two chromosomes
 
-            # 2. Crossover (Roulette selection)
+            # 2. Crossover (Adaptive Crossover)
             pairs = []
             while len(pairs) != self.population_size:
-                pairs.append(self._pair(parents))
-
-            # # 2. Crossover (Rank selection)
-            # pairs = self._combinations(parents)
-            # random.shuffle(pairs)
-            # pairs = pairs[:self.population_size]
-
-            base_offsprings = []
-            for pair in pairs:
-                offsprings = self._crossover(pair[0][0], pair[1][0])
-                base_offsprings.append(offsprings[-1])
+                parent1, parent2 = self._pair(parents)
+                diversity = self._calculate_diversity(population)
+                if diversity < diversity_threshold:
+                    offspring1, offspring2 = self._uniform_crossover(parent1, parent2)
+                else:
+                    offspring1, offspring2 = self._single_point_crossover(parent1, parent2)
+                pairs.append((offspring1, offspring2))
 
             # 3. Mutation
-            new_population = self._mutation(base_offsprings)
-            population = new_population
+            population = []
+            for pair in pairs:
+                population.append(self._mutate(pair[0]))
+                population.append(self._mutate(pair[1]))
+
             self.generation += 1
+
+    def _single_point_crossover(self, parent1, parent2):
+        """
+        Single point crossover implementation
+        """
+        # Selecting a random crossover point
+        crossover_point = random.randint(1, len(parent1))
+        offspring1 = parent1[:crossover_point] + parent2[crossover_point:]
+        offspring2 = parent2[:crossover_point] + parent1[crossover_point:]
+        return offspring1, offspring2
+
+    def _uniform_crossover(self, parent1, parent2):
+        """
+        Uniform crossover implementation
+        """
+        offspring1 = []
+        offspring2 = []
+        for i in range(len(parent1)):
+            # Selecting random bits from both parents to create the offsprings
+            offspring1.append(parent1[i] if random.random() < 0.5 else parent2[i])
+            offspring2.append(parent2[i] if random.random() < 0.5 else parent1[i])
+        return offspring1, offspring2
+    def _calculate_diversity(self, population):
+        """
+        Calculates the diversity of the population using standard deviation
+        """
+        population = [x[1] for x in population]
+        return np.std(population)
+    #
+    #
+    #     print("population_size: " + str(self.population_size) +\
+    #           ", mutation_rate: " + str(self.mutation_rate) +\
+    #           ", selection_rate: " + str(self.selection_rate) +\
+    #           ", random_weight_range: " + str(self.random_weight_range))
+    #     population = None
+    #
+    #     while True:
+    #         print('{{"metric": "generation", "value": {}}}'.format(self.generation))
+    #
+    #         # 1. Selection
+    #         parents = self._strongest_parents(population, env)
+    #
+    #         self._save_model(parents)  # Saving main model based on the current best two chromosomes
+    #
+    #         # 2. Crossover (Roulette selection)
+    #         pairs = []
+    #         while len(pairs) != self.population_size:
+    #             pairs.append(self._pair(parents))
+    #
+    #         # # 2. Crossover (Rank selection)
+    #         # pairs = self._combinations(parents)
+    #         # random.shuffle(pairs)
+    #         # pairs = pairs[:self.population_size]
+    #
+    #         base_offsprings = []
+    #         for pair in pairs:
+    #             offsprings = self._crossover(pair[0][0], pair[1][0])
+    #             base_offsprings.append(offsprings[-1])
+    #
+    #         # 3. Mutation
+    #         new_population = self._mutation(base_offsprings)
+    #         population = new_population
+    #         self.generation += 1
 
     def _pair(self, parents):
         total_parents_score = sum([x[1] for x in parents])
@@ -119,7 +179,7 @@ class GETrainer(GEGameModel):
             current += parent[1]
             if current > pick:
                 return parent
-        return random.choice(parents) # Fallback
+        return random.choice(parents)  # Fallback
 
     def _combinations(self, parents):
         combinations = []
@@ -221,8 +281,8 @@ class GETrainer(GEGameModel):
         chromosomes = []
 
         for i in range(0, self.population_size):
-            chromosome = weights # 1 686 180 params
-            for a in range(0, len(weights)): # 10
+            chromosome = weights  # 1 686 180 params
+            for a in range(0, len(weights)):  # 10
                 a_layer = weights[a]
                 for b in range(0, len(a_layer)):  # 8
                     b_layer = a_layer[b]
