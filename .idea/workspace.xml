@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="03f9e933-b264-4ca6-a738-4278732ae84d" name="Default" comment="Adaptive crossover">
-      <change afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/atari.py" beforeDir="false" afterPath="$PROJECT_DIR$/atari.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/convolutional_neural_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/convolutional_neural_network.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game_models/ge_game_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_models/ge_game_model.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,16 +118,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "WebServerToolWindowFactoryState": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="atari" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="atari" />
@@ -166,7 +168,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1536287935520</updated>
-      <workItem from="1674061823084" duration="1863000" />
+      <workItem from="1674061823084" duration="5598000" />
+      <workItem from="1674100189705" duration="7658000" />
     </task>
     <task id="LOCAL-00001" summary="Adaptive crossover">
       <created>1674063097489</created>
@@ -175,7 +178,14 @@
       <option name="project" value="LOCAL" />
       <updated>1674063097489</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Adaptive crossover">
+      <created>1674064001262</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1674064001262</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">

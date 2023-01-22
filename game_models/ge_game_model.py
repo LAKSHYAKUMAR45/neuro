@@ -88,84 +88,108 @@ class GETrainer(GEGameModel):
             # 2. Crossover (Adaptive Crossover)
             pairs = []
             while len(pairs) != self.population_size:
-                parent1, parent2 = self._pair(parents)
-                diversity = self._calculate_diversity(population)
-                if diversity < diversity_threshold:
-                    offspring1, offspring2 = self._uniform_crossover(parent1, parent2)
-                else:
-                    offspring1, offspring2 = self._single_point_crossover(parent1, parent2)
-                pairs.append((offspring1, offspring2))
+                pairs.append(self._pair(parents))
+
+            base_offsprings = []
+
+            for pair in pairs:
+                offspring1, offspring2 = self._crossover(pair[0][0], pair[1][0])
+                base_offsprings.append(offspring1)
+                base_offsprings.append(offspring2)
 
             # 3. Mutation
-            population = []
-            for pair in pairs:
-                population.append(self._mutate(pair[0]))
-                population.append(self._mutate(pair[1]))
-
+            new_population = self._mutation(base_offsprings)
+            population = new_population
             self.generation += 1
-
-    def _single_point_crossover(self, parent1, parent2):
-        """
-        Single point crossover implementation
-        """
-        # Selecting a random crossover point
-        crossover_point = random.randint(1, len(parent1))
-        offspring1 = parent1[:crossover_point] + parent2[crossover_point:]
-        offspring2 = parent2[:crossover_point] + parent1[crossover_point:]
+    
+    def _crossover(self, parent1, parent2):
+        diversity = self._calculate_diversity(parent1)
+        if diversity < 0.8:
+            offspring1, offspring2 = self._uniform_crossover(parent1, parent2)
+        else:
+            offspring1, offspring2 = self._single_point_crossover(parent1, parent2)
         return offspring1, offspring2
 
-    def _uniform_crossover(self, parent1, parent2):
-        """
-        Uniform crossover implementation
-        """
-        offspring1 = []
-        offspring2 = []
-        for i in range(len(parent1)):
-            # Selecting random bits from both parents to create the offsprings
-            offspring1.append(parent1[i] if random.random() < 0.5 else parent2[i])
-            offspring2.append(parent2[i] if random.random() < 0.5 else parent1[i])
-        return offspring1, offspring2
-    def _calculate_diversity(self, population):
-        """
-        Calculates the diversity of the population using standard deviation
-        """
-        population = [x[1] for x in population]
-        return np.std(population)
-    #
-    #
-    #     print("population_size: " + str(self.population_size) +\
-    #           ", mutation_rate: " + str(self.mutation_rate) +\
-    #           ", selection_rate: " + str(self.selection_rate) +\
-    #           ", random_weight_range: " + str(self.random_weight_range))
-    #     population = None
-    #
-    #     while True:
-    #         print('{{"metric": "generation", "value": {}}}'.format(self.generation))
-    #
-    #         # 1. Selection
-    #         parents = self._strongest_parents(population, env)
-    #
-    #         self._save_model(parents)  # Saving main model based on the current best two chromosomes
-    #
-    #         # 2. Crossover (Roulette selection)
-    #         pairs = []
-    #         while len(pairs) != self.population_size:
-    #             pairs.append(self._pair(parents))
-    #
-    #         # # 2. Crossover (Rank selection)
-    #         # pairs = self._combinations(parents)
-    #         # random.shuffle(pairs)
-    #         # pairs = pairs[:self.population_size]
-    #
-    #         base_offsprings = []
-    #         for pair in pairs:
-    #             offsprings = self._crossover(pair[0][0], pair[1][0])
-    #             base_offsprings.append(offsprings[-1])
-    #
-    #         # 3. Mutation
-    #         new_population = self._mutation(base_offsprings)
-    #         population = new_population
-    #         self.generation += 1
+    def _uniform_crossover(self, x, y):
+        offspring_x = x
+        offspring_y = y
+
+        for a in range(0, len(offspring_x)):  # 10
+            a_layer = offspring_x[a]
+            for b in range(0, len(a_layer)):  # 8
+                b_layer = a_layer[b]
+                if not isinstance(b_layer, np.ndarray):
+                    if np.random.choice([True, False], p=[0.5, 0.5]):
+                        offspring_x[a][b] = y[a][b]
+                        offspring_y[a][b] = x[a][b]
+                    continue
+                for c in range(0, len(b_layer)):  # 8
+                    c_layer = b_layer[c]
+                    if not isinstance(c_layer, np.ndarray):
+                        if np.random.choice([True, False], p=[0.5, 0.5]):
+                            offspring_x[a][b][c] = y[a][b][c]
+                            offspring_y[a][b][c] = x[a][b][c]
+                        continue
+                    for d in range(0, len(c_layer)):  # 4
+                        d_layer = c_layer[d]
+                        for e in range(0, len(d_layer)):  # 32
+                            if np.random.choice([True, False], p=[0.5, 0.5]):
+                                offspring_x[a][b][c][d][e] = y[a][b][c][d][e]
+                                offspring_y[a][b][c][d][e] = x[a][b][c][d][e]
+        return offspring_x, offspring_y
+
+    def _single_point_crossover(self, x, y):
+        offspring_x = x
+        offspring_y = y
+
+        for a in range(0, len(offspring_x)):  # 10
+            a_layer = offspring_x[a]
+            for b in range(0, len(a_layer)):  # 8
+                b_layer = a_layer[b]
+                if not isinstance(b_layer, np.ndarray):
+                    crossover_point = random.randint(0, 1)
+                    if crossover_point == 0:
+                        offspring_x[a][b] = y[a][b]
+                        offspring_y[a][b] = x[a][b]
+                    continue
+                for c in range(0, len(b_layer)):  # 8
+                    c_layer = b_layer[c]
+                    if not isinstance(c_layer, np.ndarray):
+                        crossover_point = random.randint(0, 1)
+                        if crossover_point == 0:
+                            offspring_x[a][b][c] = y[a][b][c]
+                            offspring_y[a][b][c] = x[a][b][c]
+                        continue
+                    for d in range(0, len(c_layer)):  # 4
+                        d_layer = c_layer[d]
+                        for e in range(0, len(d_layer)):  # 32
+                            crossover_point = random.randint(0, 1)
+                            if crossover_point == 0:
+                                offspring_x[a][b][c][d][e] = y[a][b][c][d][e]
+                                offspring_y[a][b][c][d][e] = x[a][b][c][d][e]
+        return offspring_x, offspring_y
+
+    def _calculate_diversity(self, chromosome):
+        weights = self.model.get_weights()
+        chromosome_weights = []
+        for a in range(0, len(weights)):
+            a_layer = weights[a]
+            for b in range(0, len(a_layer)):
+                b_layer = a_layer[b]
+                if not isinstance(b_layer, np.ndarray):
+                    chromosome_weights.append(weights[a][b])
+                    continue
+                for c in range(0, len(b_layer)):
+                    c_layer = b_layer[c]
+                    if not isinstance(c_layer, np.ndarray):
+                        chromosome_weights.append(weights[a][b][c])
+                        continue
+                    for d in range(0, len(c_layer)):
+                        d_layer = c_layer[d]
+                        for e in range(0,len(d_layer)):
+                            chromosome_weights.append(weights[a][b][c][d][e])
+        diversity = np.std(chromosome_weights)
+        return diversity
 
     def _pair(self, parents):
         total_parents_score = sum([x[1] for x in parents])
@@ -231,34 +255,6 @@ class GETrainer(GEGameModel):
                                     offspring_mutation[a][b][c][d][e] = self._random_weight()
             offsprings.append(offspring_mutation)
         return offsprings
-
-    def _crossover(self, x, y):
-        offspring_x = x
-        offspring_y = y
-
-        for a in range(0, len(offspring_x)):  # 10
-            a_layer = offspring_x[a]
-            for b in range(0, len(a_layer)):  # 8
-                b_layer = a_layer[b]
-                if not isinstance(b_layer, np.ndarray):
-                    if random.choice([True, False]):
-                        offspring_x[a][b] = y[a][b]
-                        offspring_y[a][b] = x[a][b]
-                    continue
-                for c in range(0, len(b_layer)):  # 8
-                    c_layer = b_layer[c]
-                    if not isinstance(c_layer, np.ndarray):
-                        if random.choice([True, False]):
-                            offspring_x[a][b][c] = y[a][b][c]
-                            offspring_y[a][b][c] = x[a][b][c]
-                        continue
-                    for d in range(0, len(c_layer)):  # 4
-                        d_layer = c_layer[d]
-                        for e in range(0, len(d_layer)):  # 32
-                            if random.choice([True, False]):
-                                offspring_x[a][b][c][d][e] = y[a][b][c][d][e]
-                                offspring_y[a][b][c][d][e] = x[a][b][c][d][e]
-        return offspring_x, offspring_y
 
     def _gameplay_for_chromosome(self, chromosome, env):
         self.run += 1
