@@ -29,7 +29,7 @@ class ConvolutionalNeuralNetwork:
                               input_shape=input_shape,
                               data_format="channels_last"))
         self.model.add(Flatten())
-        self.model.add(Dense(512, activation="relu"))
+        self.model.add(Dense(98, activation="relu"))
         self.model.add(Dense(action_space))
         self.model.compile(loss="mean_squared_error",
                            optimizer=RMSprop(lr=0.00025,
