@@ -32,7 +32,7 @@ class ConvolutionalNeuralNetwork:
         self.model.add(Dense(98, activation="relu"))
         self.model.add(Dense(action_space))
         self.model.compile(loss="mean_squared_error",
-                           optimizer=RMSprop(lr=0.00025,
+                           optimizer=RMSprop(lr=0.005,
                                              rho=0.95,
                                              epsilon=0.01),
                            metrics=["accuracy"])
