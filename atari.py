@@ -69,7 +69,7 @@ class Atari:
         parser.add_argument("-r", "--render", help="Choose if the game should be rendered. Default is 'False'.", default=False, type=bool)
         parser.add_argument("-tsl", "--total_step_limit", help="Choose how many total steps (frames visible by agent) "
                                                                "should be performed. Default is '5000000'.",
-                            default=5000000, type=int)
+                            default=100000, type=int)
         parser.add_argument("-trl", "--total_run_limit", help="Choose after how many runs we should stop. Default is "
                                                               "None (no limit).", default=None, type=int)
         parser.add_argument("-c", "--clip", help="Choose whether we should clip rewards to (0, 1) range. Default is "
